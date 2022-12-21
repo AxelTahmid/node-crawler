@@ -1,0 +1,57 @@
+{
+	"env": {
+		"node": true,
+		"es2021": true
+	},
+	"extends": ["standard", "eslint:recommended", "plugin:node/recommended"],
+	"parserOptions": {
+		"ecmaVersion": "latest"
+	},
+	"rules": {
+		"indent": ["error", "tab"],
+		"no-console": "off",
+		"newline-per-chained-call": 1,
+		"no-var": "error",
+		"curly": "off",
+		"semi": ["error"],
+		"no-tabs": ["off", "always"],
+		"new-cap": "off",
+		"require-jsdoc": "off",
+		"no-param-reassign": [
+			"error",
+			{
+				"props": true
+			}
+		],
+		"no-use-before-define": [
+			"error",
+			{
+				"functions": false,
+				"variables": false
+			}
+		],
+		"comma-dangle": ["error", "never"],
+		"max-len": [
+			"error",
+			{
+				"code": 85,
+				"ignoreComments": true,
+				"ignoreTrailingComments": true,
+				"ignoreUrls": true,
+				"ignoreStrings": true,
+				"ignoreTemplateLiterals": true,
+				"ignorePattern": "^\\s*var\\s.+=\\s*require\\s*\\("
+			}
+		],
+		"brace-style": [
+			"error",
+			"1tbs",
+			{
+				"allowSingleLine": true
+			}
+		],
+		"complexity": ["warn", 6],
+		"require-atomic-updates": 0,
+		"array-callback-return": 0
+	}
+}

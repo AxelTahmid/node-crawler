@@ -1,0 +1,22 @@
+{
+  "name": "crawler",
+  "version": "1.0.0",
+  "description": "data scraper",
+  "main": "index.js",
+	"scripts": {
+		"format:check": "npx prettier --check .",
+		"format:fix": "npx prettier --write .",
+		"lint:check": "npx eslint --ext .js .",
+		"lint:fix": "npx eslint --ext .js . --fix"
+	},
+  "keywords": [],
+	"author": "axel.tahmid@gmail.com",
+	"license": "MIT",
+  "devDependencies": {
+		"eslint": "^8.29.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-config-standard": "^17.0.0",
+		"eslint-plugin-node": "^11.1.0",
+		"prettier": "^2.8.1"
+	}
+}
