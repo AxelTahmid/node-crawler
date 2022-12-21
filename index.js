@@ -8,24 +8,36 @@ const baseURL =
 	const browser = await puppeteer.launch()
 	log.info('headless browser launched')
 
-	const page = await browser.newPage()
-	log.info('tab opened')
+	try {
+		const page = await browser.newPage()
+		log.info('tab opened')
 
-	await page.goto(baseURL)
-	log.info('went to URL')
+		await page.goto(baseURL)
+		log.info('went to URL')
 
-	// await page.screenshot({ path: 'image.png' })
+		// await page.screenshot({ path: 'image.png' })
 
-	const pageData = await page.evaluate(() => {
-		return document.documentElement.innerHTML
-	})
-	log.info('got all HTML')
+		const pageData = await page.evaluate(() => {
+			return document.documentElement.innerHTML
+		})
+		log.info('got all HTML')
 
-	const $ = cheerio.load(pageData)
+		const $ = cheerio.load(pageData)
 
-	const advertisements = $('[data-testid="listing-ad"]')
+		// const advertisements = $('[data-testid="listing-ad"]').attr('id')
+		const advertisements = []
 
-	console.log('html:', advertisements)
+		$('[data-testid="listing-ad"]').each((index, element) => {
+			const itemId = $(element).attr('id')
+			const itemUrl = $(element).find('div > h2 > a').attr('href')
+			advertisements.push({ itemId, itemUrl })
+		})
 
-	await browser.close()
+		console.log('html:', advertisements, 'count', advertisements.length)
+	} catch (error) {
+		log.warn(error.message)
+		console.log(error)
+	} finally {
+		await browser.close()
+	}
 })()
