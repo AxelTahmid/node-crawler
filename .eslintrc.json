@@ -1,30 +1,31 @@
 {
 	"env": {
-		"node": true,
-		"es2021": true
+		"commonjs": true,
+		"es2021": true,
+		"node": true
 	},
-	"extends": ["standard", "eslint:recommended", "plugin:node/recommended"],
+	"extends": "standard",
 	"parserOptions": {
 		"ecmaVersion": "latest"
 	},
 	"rules": {
-		"indent": ["error", "tab"],
-		"no-console": "off",
-		"newline-per-chained-call": 1,
+		// "newline-per-chained-call": 1,
 		"no-var": "error",
 		"curly": "off",
-		"semi": ["error"],
-		"no-tabs": ["off", "always"],
+		"camelcase": "off",
+		"space-before-function-paren": "off",
+		"indent": "off",
 		"new-cap": "off",
-		"require-jsdoc": "off",
+		"strict": ["error", "global"],
+		"quotes": ["error", "single"],
+		"semi": ["error", "never"],
+		"no-tabs": ["off", "always"],
 		"comma-dangle": ["error", "never"],
-		"complexity": ["warn", 6],
-		"require-atomic-updates": 0,
-		"array-callback-return": 0,
+		"complexity": ["warn", 10],
 		"no-param-reassign": [
 			"error",
 			{
-				"props": true
+				"props": false
 			}
 		],
 		"no-use-before-define": [
@@ -32,6 +33,19 @@
 			{
 				"functions": false,
 				"variables": false
+			}
+		],
+		"no-console": [
+			"warn",
+			{
+				"allow": ["time", "timeEnd"]
+			}
+		],
+		"brace-style": [
+			"error",
+			"1tbs",
+			{
+				"allowSingleLine": true
 			}
 		],
 		"max-len": [
@@ -44,13 +58,6 @@
 				"ignoreStrings": true,
 				"ignoreTemplateLiterals": true,
 				"ignorePattern": "^\\s*var\\s.+=\\s*require\\s*\\("
-			}
-		],
-		"brace-style": [
-			"error",
-			"1tbs",
-			{
-				"allowSingleLine": true
 			}
 		]
 	}
