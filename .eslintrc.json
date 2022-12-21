@@ -17,6 +17,10 @@
 		"no-tabs": ["off", "always"],
 		"new-cap": "off",
 		"require-jsdoc": "off",
+		"comma-dangle": ["error", "never"],
+		"complexity": ["warn", 6],
+		"require-atomic-updates": 0,
+		"array-callback-return": 0,
 		"no-param-reassign": [
 			"error",
 			{
@@ -30,7 +34,6 @@
 				"variables": false
 			}
 		],
-		"comma-dangle": ["error", "never"],
 		"max-len": [
 			"error",
 			{
@@ -49,9 +52,6 @@
 			{
 				"allowSingleLine": true
 			}
-		],
-		"complexity": ["warn", 6],
-		"require-atomic-updates": 0,
-		"array-callback-return": 0
+		]
 	}
 }
