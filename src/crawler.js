@@ -1,11 +1,31 @@
 const truck_selector = '[data-testid="listing-ad"]'
-const pagination_selector = '[data-testid="pagination-step-forwards"]'
+const nextPage_selector = '[data-testid="pagination-step-forwards"]'
+const lastPage_selector = '[data-testid="pagination-list-item"]'
 
-const getNextPageUrl = async function (context) {
-	await context.waitForSelector(pagination_selector, {
-		timeout: 5000
+const getNextPageUrl = async function (page) {
+	try {
+		await page.waitForSelector(nextPage_selector, {
+			timeout: 5000
+		})
+
+		page.screenshot({ path: 'loaded.png' })
+
+		await page.click(nextPage_selector)
+		page.screenshot({ path: 'nextpage.png' })
+
+		return page.url()
+	} catch (error) {
+		console.log(error.message)
+	}
+}
+
+const findLastPage = function ($) {
+	let lastPage = 0
+	$(lastPage_selector).each((index, element) => {
+		const num = $(element).find('a').text()
+		lastPage = Math.max(lastPage, num)
 	})
-	await context.click(pagination_selector)
+	return lastPage
 }
 
 /**
@@ -30,4 +50,4 @@ const getTotalAdsCount = function ($) {
 	return $(truck_selector).length
 }
 
-module.exports = { getNextPageUrl, addItems, getTotalAdsCount }
+module.exports = { findLastPage, getNextPageUrl, addItems, getTotalAdsCount }
