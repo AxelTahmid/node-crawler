@@ -1,6 +1,7 @@
 const truck_selector = '[data-testid="listing-ad"]'
-const nextPage_selector = '[data-testid="pagination-step-forwards"]'
 const lastPage_selector = '[data-testid="pagination-list-item"]'
+
+const nextPage_selector = '[data-testid="pagination-step-forwards"]'
 
 const getNextPageUrl = async function (page) {
 	try {
@@ -50,4 +51,45 @@ const getTotalAdsCount = function ($) {
 	return $(truck_selector).length
 }
 
-module.exports = { findLastPage, getNextPageUrl, addItems, getTotalAdsCount }
+/*
+const getNextPageUrl = async function (puppeteer, cheerio, lastPage) {
+	let totalCount = 0
+
+	for (let index = 1; index <= lastPage; index++) {
+		await puppeteer.goto(baseURL + `&page=${index}`)
+
+		const pageData = await puppeteer.evaluate(() => {
+			return document.documentElement.innerHTML
+		})
+
+		const $ = cheerio.load(pageData)
+
+		const items = addItems($)
+		log.info(`Scrapped Data from Page: ${index}`)
+		storage.updateJson('items.json', items)
+
+		const count = getTotalAdsCount($)
+		log.info(`ads count: ${count}`)
+		totalCount = totalCount + count
+	}
+
+	log.info(`got total ads count: ${totalCount}`)
+}
+*/
+
+const getTruckDetails = function ($) {
+	console.log('id', $('#ad_id').text())
+	return {
+		id: $('#ad_id').text()
+		// title: $('.fake-title').text()
+		// price: $('.offer-price__number').text() + $('.offer-price__currency').text()
+	}
+}
+
+module.exports = {
+	findLastPage,
+	getNextPageUrl,
+	addItems,
+	getTotalAdsCount,
+	getTruckDetails
+}
