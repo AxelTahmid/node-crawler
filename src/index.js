@@ -1,10 +1,11 @@
 const puppeteer = require('puppeteer')
 const cheerio = require('cheerio')
+const rp = require('request-promise')
 const log = require('./logger')
 const crawler = require('./crawler')
 const storage = require('./filesystem')
 
-const baseURL =
+const baseWebUrl =
 	'https://www.otomoto.pl/ciezarowe/uzytkowe/mercedes-benz/od-2014/q-actros?search%5Bfilter_enum_damaged%5D=0&search%5Border%5D=created_at%3Adesc'
 
 ;(async () => {
@@ -15,7 +16,7 @@ const baseURL =
 		const page = await browser.newPage()
 		log.info('tab opened')
 
-		await page.goto(baseURL)
+		await page.goto(baseWebUrl)
 		log.info('went to URL')
 
 		let pageData = await page.evaluate(() => {
@@ -29,46 +30,47 @@ const baseURL =
 		const lastPage = crawler.findLastPage($)
 		log.info(`pagination last page: ${lastPage}`)
 
-		// let totalCount = 0
+		let totalCount = 0
 
-		// // * iterate through all pages
-		// for (let index = 1; index <= lastPage; index++) {
-		// 	await page.goto(baseURL + `&page=${index}`)
+		// * iterate through all pages
+		for (let index = 1; index <= lastPage; index++) {
+			await page.goto(baseWebUrl + `&page=${index}`)
 
-		// 	pageData = await page.evaluate(() => {
-		// 		return document.documentElement.innerHTML
-		// 	})
+			pageData = await page.evaluate(() => {
+				return document.documentElement.innerHTML
+			})
 
-		// 	$ = cheerio.load(pageData)
+			$ = cheerio.load(pageData)
 
-		// 	const items = crawler.addItems($)
-		// 	log.info(`Scrapped Data from Page: ${index}`)
-		// 	storage.updateJson('items.json', items)
+			const items = crawler.addItems($)
+			log.info(`Scrapped Data from Page: ${index}`)
+			storage.updateJson('items.json', items)
 
-		// 	const count = crawler.getTotalAdsCount($)
-		// 	log.info(`ads count: ${count}`)
-		// 	totalCount = totalCount + count
-		// }
+			const count = crawler.getTotalAdsCount($)
+			log.info(`ads count: ${count}`)
+			totalCount = totalCount + count
+		}
 
-		// log.info(`got total ads count: ${totalCount}`)
+		log.info(`got total ads count: ${totalCount}`)
 
-		// const items = require('../data/items.json')
+		const items = require('../data/items.json')
 
-		// items.map(async item => {
-		// 	log.info(`scraping item id: ${item.id}`)
+		items.map(async item => {
+			log.info(`scraping item id: ${item.id}`)
 
-		// 	await page.goto(item.url)
+			// await page.goto(item.url)
 
-		// 	pageData = await page.evaluate(() => {
-		// 		return document.documentElement.innerHTML
-		// 	})
+			// pageData = await page.evaluate(() => {
+			// 	return document.documentElement.innerHTML
+			// })
 
-		// 	$ = cheerio.load(pageData)
+			// $ = cheerio.load(pageData)
 
-		// 	const truck = crawler.getTruckDetails($)
-		// 	log.debug(`scraping item id: ${item.id} complete!`)
-		// 	storage.updateJson('trucks.json', truck)
-		// })
+			// const truck = crawler.getTruckDetails($)
+			const truck = crawler.scrapeTruckItem(rp, item.id)
+			log.debug(`scraping item id: ${item.id} complete!`)
+			storage.updateJson('trucks.json', truck)
+		})
 	} catch (error) {
 		log.warn(error.message)
 		log.info(error)

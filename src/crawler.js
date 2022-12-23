@@ -77,13 +77,38 @@ const getNextPageUrl = async function (puppeteer, cheerio, lastPage) {
 }
 */
 
-const getTruckDetails = function ($) {
-	console.log('id', $('#ad_id').text())
-	return {
-		id: $('#ad_id').text()
-		// title: $('.fake-title').text()
-		// price: $('.offer-price__number').text() + $('.offer-price__currency').text()
-	}
+// const getTruckDetails = function ($) {
+// 	console.log('id', $('#ad_id').text())
+// 	return {
+// 		id: $('#ad_id').text()
+// 		// title: $('.fake-title').text()
+// 		// price: $('.offer-price__number').text() + $('.offer-price__currency').text()
+// 	}
+// }
+const baseApiUrl = 'https://www.otomoto.pl/api/v1/ad/'
+const scrapeTruckItem = async function (client, truckID) {
+	client({
+		uri: baseApiUrl + truckID,
+		headers: {
+			'User-Agent': 'Request-Promise'
+		},
+		json: true
+	})
+		.then(data => {
+			console.log('truck data: ', data[truckID])
+			return {
+				id: data[truckID].id,
+				title: data[truckID].title_full,
+				price: data[truckID].params.price.valueHuman_en,
+				registration_date: 'test',
+				production_date: '',
+				mileage: '',
+				power: ''
+			}
+		})
+		.catch(err => {
+			console.log(err)
+		})
 }
 
 module.exports = {
@@ -91,5 +116,5 @@ module.exports = {
 	getNextPageUrl,
 	addItems,
 	getTotalAdsCount,
-	getTruckDetails
+	scrapeTruckItem
 }
