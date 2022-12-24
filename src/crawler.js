@@ -1,32 +1,31 @@
+const puppeteer = require('puppeteer')
+const cheerio = require('cheerio')
+const log = require('./logger')
+const storage = require('./filesystem')
+
 const truck_selector = '[data-testid="listing-ad"]'
 const lastPage_selector = '[data-testid="pagination-list-item"]'
 
-const nextPage_selector = '[data-testid="pagination-step-forwards"]'
+const baseApiUrl = 'https://www.otomoto.pl/api/v1/ad/'
+const baseWebUrl =
+	'https://www.otomoto.pl/ciezarowe/uzytkowe/mercedes-benz/od-2014/q-actros?search%5Bfilter_enum_damaged%5D=0&search%5Border%5D=created_at%3Adesc'
 
-const getNextPageUrl = async function (page) {
-	try {
-		await page.waitForSelector(nextPage_selector, {
-			timeout: 5000
+/**
+ * * gets the last page number on given website
+ */
+const getLastPageNumber = async function (client, options) {
+	return await client(options)
+		.then($ => {
+			let lastPage = 0
+			$(lastPage_selector).each((index, element) => {
+				const num = $(element).find('a').text()
+				lastPage = Math.max(lastPage, num)
+			})
+			return lastPage
 		})
-
-		page.screenshot({ path: 'loaded.png' })
-
-		await page.click(nextPage_selector)
-		page.screenshot({ path: 'nextpage.png' })
-
-		return page.url()
-	} catch (error) {
-		console.log(error.message)
-	}
-}
-
-const findLastPage = function ($) {
-	let lastPage = 0
-	$(lastPage_selector).each((index, element) => {
-		const num = $(element).find('a').text()
-		lastPage = Math.max(lastPage, num)
-	})
-	return lastPage
+		.catch(err => {
+			log.debug(`Couldnt get lastpage number:  ${err.message}`)
+		})
 }
 
 /**
@@ -51,33 +50,46 @@ const getTotalAdsCount = function ($) {
 	return $(truck_selector).length
 }
 
-/*
-const getNextPageUrl = async function (puppeteer, cheerio, lastPage) {
-	let totalCount = 0
+// * iterate through all pages, using puppeteer
+const getNextPageUrl = async function (lastPage) {
+	const browser = await puppeteer.launch()
+	log.info('headless browser launched')
+	try {
+		const page = await browser.newPage()
+		log.info('tab opened')
 
-	for (let index = 1; index <= lastPage; index++) {
-		await puppeteer.goto(baseURL + `&page=${index}`)
+		let pageData, $
+		let totalCount = 0
 
-		const pageData = await puppeteer.evaluate(() => {
-			return document.documentElement.innerHTML
-		})
+		for (let index = 1; index <= lastPage; index++) {
+			await page.goto(baseWebUrl + `&page=${index}`)
+			log.debug(`Page: ${index}`)
 
-		const $ = cheerio.load(pageData)
+			pageData = await page.evaluate(() => {
+				return document.documentElement.innerHTML
+			})
 
-		const items = addItems($)
-		log.info(`Scrapped Data from Page: ${index}`)
-		storage.updateJson('items.json', items)
+			$ = cheerio.load(pageData)
+			log.info('Loaded Page HTML')
 
-		const count = getTotalAdsCount($)
-		log.info(`ads count: ${count}`)
-		totalCount = totalCount + count
+			const items = addItems($)
+			log.info('Scrapped Data')
+			storage.updateJson('items.json', items)
+			log.info('Saved data')
+
+			const count = getTotalAdsCount($)
+			log.info(`ads count: ${count}`)
+			totalCount = totalCount + count
+		}
+
+		log.debug(`total ads count: ${totalCount}`)
+	} catch (error) {
+		log.warn(`Crawling Error: ${error.message}`)
+	} finally {
+		await browser.close()
 	}
-
-	log.info(`got total ads count: ${totalCount}`)
 }
-*/
 
-const baseApiUrl = 'https://www.otomoto.pl/api/v1/ad/'
 const scrapeTruckItem = async function (client, truckID) {
 	return await client({
 		uri: baseApiUrl + truckID,
@@ -100,12 +112,12 @@ const scrapeTruckItem = async function (client, truckID) {
 			]
 		})
 		.catch(err => {
-			console.log(err)
+			log.warn(`Error: ${err.message}`)
 		})
 }
 
 module.exports = {
-	findLastPage,
+	getLastPageNumber,
 	getNextPageUrl,
 	addItems,
 	getTotalAdsCount,
