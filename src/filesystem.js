@@ -11,7 +11,7 @@ const jsonReader = fileName => {
 
 		return JSON.parse(jsonData)
 	} catch (error) {
-		log.warn(error.message)
+		log.info('file empty', error.message)
 		return []
 	}
 }

@@ -32,7 +32,7 @@ const baseWebUrl =
 
 		let totalCount = 0
 
-		// * iterate through all pages
+		// * iterate through all pages, puppeteer
 		for (let index = 1; index <= lastPage; index++) {
 			await page.goto(baseWebUrl + `&page=${index}`)
 
@@ -53,24 +53,20 @@ const baseWebUrl =
 
 		log.info(`got total ads count: ${totalCount}`)
 
+		// * call api to get data of all items, request-promise
 		const items = require('../data/items.json')
 
-		items.map(async item => {
-			log.info(`scraping item id: ${item.id}`)
-
-			// await page.goto(item.url)
-
-			// pageData = await page.evaluate(() => {
-			// 	return document.documentElement.innerHTML
-			// })
-
-			// $ = cheerio.load(pageData)
-
-			// const truck = crawler.getTruckDetails($)
-			const truck = crawler.scrapeTruckItem(rp, item.id)
-			log.debug(`scraping item id: ${item.id} complete!`)
-			storage.updateJson('trucks.json', truck)
-		})
+		if (items && items.length) {
+			items.map(async item => {
+				log.info(`scraping item id: ${item.id}`)
+				const truck = await crawler.scrapeTruckItem(rp, item.id)
+				log.debug(`scraping item id: ${item.id} complete!`)
+				console.log('data received: ', truck)
+				storage.updateJson('trucks.json', truck)
+			})
+		} else {
+			log.debug('no items in json to iterate through')
+		}
 	} catch (error) {
 		log.warn(error.message)
 		log.info(error)
