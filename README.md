@@ -49,7 +49,7 @@ Make sure you are in the root directory of project when running this
 npm install
 ```
 
-It will take a while because of ``puppeteer` , iterated through all pages using `&page=<page number>` , got `item_id` & `item_url` , stored them in JSON.
+It will take a while because of `puppeteer` , iterated through all pages using `&page=<page number>` , got `item_id` & `item_url` , stored them in JSON.
  `, which will use a chromium browser for automation. Thats all, you're done.
 
 ## Get Started
