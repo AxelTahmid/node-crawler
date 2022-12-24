@@ -1,10 +1,11 @@
 # Mohammed Shahadat Hossain
 
-This is a node.js web crawler, It mostly follows a `functional singleton pattern`. This was quite enjoyable to be honest.
+This is a node.js web crawler, It mostly follows a `functional singleton pattern`. This was a first for me. Enjoyed creating a data scrapper and using puppeter for browser automation.
 
 ## Problem Given
 
-Need to use: node - for running scraping cheerio - for parsing html file (https://www.npmjs.com/package/cheerio, used similarly as jquery) either puppeteer/playwright or request-promise for fetching ads Purpose: scrape otomoto.pl portal using provided interface.
+Need to use: node - for running scraping cheerio - for parsing html file (https://www.npmjs.com/package/cheerio, used similarly as jquery) either `puppeteer` , iterated through all pages using `&page=<page number>` , got `item_id` & `item_url` , stored them in JSON.
+ /playwright or request-promise for fetching ads Purpose: scrape otomoto.pl portal using provided interface.
 
 BONUS: scraping via otomoto mobile app.
 ### Initial url 
@@ -16,33 +17,31 @@ https://www.otomoto.pl/ciezarowe/uzytkowe/mercedes-benz/od-2014/q-actros?search%
 - Add scrapeTruckItem function - that scrapes the actual ads and parses into the format: item id, title, price, registration date, production date, mileage, power
 - Scrape all pages, all ads
 
-### Questions/thoughts:
-- Ideas for error catching/solving, retry strategies?
-- Accessing more ads from this link than the limit allows (max 50 pages)?
-- Experience with CI/CD tools?
-- Other considerations?
+## Solution Approach
 
+I have used `request-promise` with `cheerio` to load initial first page and get the number of last page in pagination. 
 
-## Project Structure
+I have then used that number, launched `puppeteer` , iterated through all pages using `&page=<page number>` param, got `item_id` & `item_url` , stored them in JSON file named `items.json`.
 
-I have used the industry standard for javascript, formatter `Prettier` and linter `eslint` throughout the project to maintain same style of code and deal with javascripts bugs. A `Dockerfile` to containerize the app is included but I intentionally didn't make it functional as I wanted the build context to be project root but data was outside of this scope and Docker only has access to current context. Anyways, Here's the important bit:
+After which I loaded the `items.json` file which saved data from `puppeteer`. I found out the `API Server Link` by inspecting network requests in browser console, I was able to `bypass the security authorization block using < User-Agent: "request-promise" >` . I then proceeded to iterate through all id's from my loaded file and format the response data and store them into `trucks.json` . The pros of using API link was, It's extremely fast, much more than puppeteer. The cons are that I don't have the registration_date number.
 
-- `index.js` is the entrypoint of the app
-- `utils` contains modularized functions
-  - `filter.js` is where all the data filtering is happening. functions description is given with comment
-  - `jsondata.js` dynamically reads all json files in data folder and creates array from them with necessary data only
-  - `logger.js` just a colorized console.log function really
-  - `validator.js` modularized validation for scalability
+I used both `puppeteer` and `request-promise` to showcase I am able to use both of them, when only one could've gotten the job done.
+
+## Project Structure 
+root contains all formatters, linters, scrips, dependencies
+### Directory - src
+- `index.js` is the entrypoint of the app with `iife function`
+- `crawler.js` contains modularized functions named with given requirements
+- `filesystem.js` read, insert and update data into JSON files
+- `logger.js` simple colorized logger using `chalk`
 
 ## Installation Guide
 
-Don't change given directory structure, since `data` folder is outside of `src` / `root of project`
-
 Environment Requirements:
 
-- `Node.js >= 18`
+- `Node.js = 18`
 - `Git Bash on Windows`
-- `IDE: VSCode` <- you'll get nice intellesense when hovering on function cause of comment description
+- `IDE: VSCode` ( optional )
 
 Make sure you are in the root directory of project when running this
 
@@ -50,46 +49,13 @@ Make sure you are in the root directory of project when running this
 npm install
 ```
 
-Thats all, you're done.
+It will take a while because of ``puppeteer` , iterated through all pages using `&page=<page number>` , got `item_id` & `item_url` , stored them in JSON.
+ `, which will use a chromium browser for automation. Thats all, you're done.
 
 ## Get Started
 
-I used `yargs` to build the cli app, since I had time constraints. It helped me scaffold a neat descriptive cli helper within seconds. to get started , inside src, i.e root of project, enter the followinig:
+Copy paste below line into command-line to get started
 
 ```
-node . --help
+npm run start
 ```
-
-you should see the following:
-
-```
-$ node . --help
-Options:
-      --help       Show help                                           [boolean]
-      --version    Show version number                                 [boolean]
-  -t, --type       Filter user by active, superactive or bored
-                                                             [string] [required]
-  -s, --startdate  Starting Date in format YYYY-MM-DD        [string] [required]
-  -e, --enddate    Ending Date in format YYYY-MM-DD          [string] [required]
-```
-
-I think the above bit is quite self explanatory. I did not use positional arguments, I did see example was given with positional arguements but I prefer to know what I am feeding to my CLI, thus I went for flags. The properly named flags also have small alias. So you could use both, but I prefer to use the shorthand.
-
-the flag inputs need to be prefixed with a `node . ` which tells `node.js` to look for a `index.js` file in root context and run it.
-
-```
-node . --type <type> --startdate <start date> --enddate <end date>
-
-node . -t <type> -s <start date> -e <end date>
-
-node . -t active -s 2016-08-01 -e 2016-08-20
-```
-
-and for this specific case result should be
-
-```
-active users:
-2,7,10780,17172,30024,30332,31870,33550,34407,34429
-```
-
-As you can see, The results are instant. This is mostly cause `JSON` or `Javascript Object Notation` has first class support by `JavaScript` , which is the codebase really, `Node.js` is just the runtime.
